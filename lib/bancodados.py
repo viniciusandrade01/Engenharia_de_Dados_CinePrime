@@ -1,3 +1,4 @@
+from datetime import datetime
 import psycopg2
 import os
 import logging
@@ -24,26 +25,26 @@ class Banco:
             sql_script = sql_file.read()
 
         # Executando a instrução SQL defina para criação da tabela
-        cur.execute(sql_script)
+        cur.execute(sql_script.split("\n\n")[0])
         
         # Inserir o DataFrame no banco de dados usando a conexão existente (self.conn)
-        db_url = f"postgresql+psycopg2://{self.conn.dsn.split(' ')[0]}:{self.conn.dsn.split(' ')[1]}@{self.conn.dsn.split(' ')[-2]}:{str(self.conn.dsn.split(' ')[-1].split('=')[1])}/{self.conn.dsn.split(' ')[2]}"
+        db_url = f"postgresql+psycopg2://{self.conn.dsn.split(' ')[0].split('=')[1]}:123456@{self.conn.dsn.split(' ')[-2].split('=')[1]}:{self.conn.dsn.split(' ')[-1].split('=')[1]}/data_cine"
         engine = create_engine(db_url)
-        df.to_sql('data_cinema', engine, if_exists='replace', index=False)
+        df.to_sql(sql_script.split(" (\n")[0].split(" ")[-1], engine, if_exists='replace', index=False)
 
         # Confirma a transação
         self.conn.commit()
         logging.info("Dados carregados com sucesso!")
         
         # Execute uma consulta para selecionar todos os valores da tabela
-        cur.execute("SELECT * FROM {%s};") %(sql_script.split(" ")[5])
+        cur.execute(sql_script.split("\n\n")[1])
 
         # Recupere os resultados da consulta
         results = cur.fetchall()
 
         # Desabilite para visualizar os resultados inseridos no Banco de Dados
-        #for row in results:
-        #    print(row)
+        for row in results:
+            print(row)
 
         # Fechando o cursor e a conexão
         cur.close()

@@ -7,3 +7,5 @@ CREATE TABLE IF NOT EXISTS data_cinema (
     Avaliacao FLOAT,
     Escolhido VARCHAR(1)
 );
+
+SELECT * FROM data_cinema;
